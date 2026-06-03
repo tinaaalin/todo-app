@@ -1,0 +1,216 @@
+/* —— Design tokens —— */
+:root {
+  --color-bg: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-text: #1d1d1f;
+  --color-text-secondary: #6e6e73;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-accent: #007aff;
+  --color-accent-hover: #0066d6;
+  --color-danger: #ff3b30;
+  --color-danger-hover: #e0352b;
+
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.04);
+
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --app-width: 420px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #000000;
+    --color-surface: #1c1c1e;
+    --color-text: #f5f5f7;
+    --color-text-secondary: #98989d;
+    --color-border: rgba(255, 255, 255, 0.1);
+    --shadow-card: 0 2px 24px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* —— Page layout —— */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  font-family: var(--font-system);
+  font-size: 17px;
+  line-height: 1.47;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* —— App shell —— */
+.app {
+  width: 100%;
+  max-width: var(--app-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* —— Header —— */
+.app__header {
+  text-align: center;
+}
+
+.app__title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.app__subtitle {
+  margin: var(--space-xs) 0 0;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+/* —— Composer (input + Add) —— */
+.composer {
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.composer__row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.composer__input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-md);
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.composer__input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.composer__input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+}
+
+.composer__add {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 var(--space-lg);
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  color: #ffffff;
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.composer__add:hover {
+  background: var(--color-accent-hover);
+}
+
+.composer__add:active {
+  transform: scale(0.98);
+}
+
+/* —— Todo list panel —— */
+.list-panel {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.todo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+}
+
+.todo-item__text {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  word-break: break-word;
+}
+
+.todo-item__delete {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-danger);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.todo-item:hover .todo-item__delete,
+.todo-item__delete:focus-visible {
+  opacity: 1;
+}
+
+.todo-item__delete:hover {
+  background: rgba(255, 59, 48, 0.12);
+}
+
+.todo-item__delete:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.list-panel__empty {
+  margin: 0;
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1 class="app__title">Todo</h1>
+        <p class="app__subtitle">记录今天要做的事</p>
+      </header>
+
+      <section class="composer" aria-label="新增待办">
+        <div class="composer__row">
+          <input
+            type="text"
+            class="composer__input"
+            placeholder="添加待办事项…"
+            aria-label="待办内容"
+          />
+          <button type="button" class="composer__add">Add</button>
+        </div>
+      </section>
+
+      <section class="list-panel" aria-label="待办列表">
+        <ul class="todo-list">
+          <li class="todo-item">
+            <span class="todo-item__text">买一杯咖啡</span>
+            <button type="button" class="todo-item__delete" aria-label="删除：买一杯咖啡">
+              删除
+            </button>
+          </li>
+          <li class="todo-item">
+            <span class="todo-item__text">回复邮件</span>
+            <button type="button" class="todo-item__delete" aria-label="删除：回复邮件">
+              删除
+            </button>
+          </li>
+          <li class="todo-item">
+            <span class="todo-item__text">整理桌面</span>
+            <button type="button" class="todo-item__delete" aria-label="删除：整理桌面">
+              删除
+            </button>
+          </li>
+        </ul>
+        <p class="list-panel__empty" hidden>还没有待办，添加一条吧。</p>
+      </section>
+    </main>
+  </body>
+</html>
