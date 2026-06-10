@@ -3,7 +3,28 @@ const addButton = document.querySelector(".composer__add");
 const list = document.querySelector(".todo-list");
 const emptyState = document.querySelector(".list-panel__empty");
 
-const todos = [];
+const STORAGE_KEY = "todos.v1";
+const todos = loadTodos();
+
+function loadTodos() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item) => typeof item === "string");
+  } catch {
+    return [];
+  }
+}
+
+function saveTodos() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  } catch {
+    // Storage unavailable (private mode, quota exceeded) — degrade silently.
+  }
+}
 
 function render() {
   list.innerHTML = "";
@@ -37,11 +58,13 @@ function addTodo() {
 
   todos.push(text);
   input.value = "";
+  saveTodos();
   render();
 }
 
 function deleteTodo(index) {
   todos.splice(index, 1);
+  saveTodos();
   render();
 }
 
