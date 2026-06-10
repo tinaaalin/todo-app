@@ -46,7 +46,7 @@ Copy this checklist and track progress. **Do not advance until each gate is sati
 - [ ] Step 1: Clarify scope (in / out; which files)
       Gate → scope stated in response
 - [ ] Step 2: Create feature branch from updated main
-      Gate → on cursor/<feature>, based on latest origin/main
+      Gate → on <agent>/<feature> (agent = current AI tool, e.g. `claude`, `cursor`), based on latest origin/main
 - [ ] Step 3: Gather relevant context
       Gate → brief summary of what you learned
 - [ ] Step 4: Explain design (why, files, data flow)
@@ -86,17 +86,19 @@ Keep the first implementation as small as possible.
 
 ## Step 2: Branch from main
 
+`<agent>` in the commands below = the AI tool producing this change (currently `claude`; historically `cursor`). One project may accumulate branches across tools; the prefix records which tool produced each.
+
 ```bash
 git fetch origin
 git checkout main
 git pull origin main
-git checkout -b cursor/<short-feature-name>
+git checkout -b <agent>/<short-feature-name>
 ```
 
 Rules:
 
 - One feature per branch
-- Branch prefix: `cursor/`
+- Branch prefix: `<agent>/` — agent = the AI tool producing this change. Examples: `claude/delete-todo`, `cursor/add-todo`.
 - Do not stack unrelated features on an old merged branch
 
 ---
@@ -219,7 +221,7 @@ git commit -m "$(cat <<'EOF'
 <message>
 EOF
 )"
-git push -u origin cursor/<short-feature-name>
+git push -u origin <agent>/<short-feature-name>
 ```
 
 Use the PR template from Step 6. Provide title, description, test plan, and future extensions.
@@ -230,7 +232,7 @@ Use the PR template from Step 6. Provide title, description, test plan, and futu
 
 When updating this skill (not todo-app behavior):
 
-- Branch: `cursor/update-feature-development-skill` (or similar)
+- Branch: `<agent>/update-feature-development-skill` (or similar; agent = current AI tool, e.g. `claude`, `cursor`)
 - Edit `docs/feature-development/SKILL.md`, then copy to `.cursor/skills/feature-development/SKILL.md`
 - Same review gate: diff → user confirm → commit → PR
 - Do not implement product features on the same branch unless the user explicitly combines them
@@ -256,6 +258,6 @@ When updating this skill (not todo-app behavior):
 
 **Add Todo (completed)** — PR #2, `cursor/add-todo` → `main`
 
-**Delete Todo (queued)** — run full Steps 1–7 after this skill merges; Step 4 required even though change is small
+**Delete Todo (completed)** — PR #4, `cursor/delete-todo` → `main`
 
-**localStorage (queued)** — start only after delete PR merges to `main`
+**localStorage (next)** — branch `claude/localstorage-persistence` (new `claude/` prefix after switching from Cursor to Claude Code)
