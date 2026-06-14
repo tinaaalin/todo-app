@@ -2,7 +2,10 @@ const input = document.querySelector(".composer__input");
 const addButton = document.querySelector(".composer__add");
 const list = document.querySelector(".todo-list");
 const emptyState = document.querySelector(".list-panel__empty");
+const versionEl = document.querySelector(".app__version");
 
+// bump together with CACHE_VERSION in service-worker.js when releasing.
+const APP_VERSION = "2026.06.14-1";
 const STORAGE_KEY = "todos.v1";
 const todos = loadTodos();
 
@@ -74,4 +77,5 @@ input.addEventListener("keydown", (event) => {
   if (event.key === "Enter") addTodo();
 });
 
+versionEl.textContent = `v${APP_VERSION}`;
 render();
