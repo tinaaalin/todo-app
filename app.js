@@ -35,6 +35,7 @@ function render() {
   todos.forEach((text, index) => {
     const item = document.createElement("li");
     item.className = "todo-item";
+    item.tabIndex = 0;
 
     const textEl = document.createElement("span");
     textEl.className = "todo-item__text";
