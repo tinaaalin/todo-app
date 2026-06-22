@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="icon.svg" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -26,28 +31,19 @@
       </section>
 
       <section class="list-panel" aria-label="待办列表">
-        <ul class="todo-list">
-          <li class="todo-item">
-            <span class="todo-item__text">买一杯咖啡</span>
-            <button type="button" class="todo-item__delete" aria-label="删除：买一杯咖啡">
-              删除
-            </button>
-          </li>
-          <li class="todo-item">
-            <span class="todo-item__text">回复邮件</span>
-            <button type="button" class="todo-item__delete" aria-label="删除：回复邮件">
-              删除
-            </button>
-          </li>
-          <li class="todo-item">
-            <span class="todo-item__text">整理桌面</span>
-            <button type="button" class="todo-item__delete" aria-label="删除：整理桌面">
-              删除
-            </button>
-          </li>
-        </ul>
-        <p class="list-panel__empty" hidden>还没有待办，添加一条吧。</p>
+        <ul class="todo-list"></ul>
+        <p class="list-panel__empty">还没有待办，添加一条吧。</p>
       </section>
+
+      <p class="app__version"></p>
     </main>
+    <script src="app.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>
