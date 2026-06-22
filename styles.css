@@ -194,8 +194,13 @@ body {
 }
 
 .todo-item:hover .todo-item__delete,
+.todo-item:focus-within .todo-item__delete,
 .todo-item__delete:focus-visible {
   opacity: 1;
+}
+
+.todo-item:focus-visible {
+  outline: none;
 }
 
 .todo-item__delete:hover {
