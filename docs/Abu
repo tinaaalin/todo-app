@@ -1,0 +1,133 @@
+# Abu — Design Document
+
+Abu (named after the monkey in *Aladdin*) is a desktop assistant that streamlines team workflows. It ships as two editions built from one codebase:
+
+- **Abu Tech** — a searchable hub of tools and hyperlinks, plus a production-release SDLC checklist.
+- **Abu Ops** — the same engine with Ops content (tools, runbooks, release-support workflow).
+
+Abu Tech is built first. Abu Ops reuses everything and only supplies different content.
+
+## 1. Goals and Non-Goals
+
+**Goals**
+- One page where any engineer can find a tool or URL in seconds (fuzzy search over name, tags, description).
+- A production-release workflow modeled as steps with owners, dependencies and sub-checklists, with progress remembered between sessions.
+- Content is data (YAML), so non-developers can update links and workflows via pull request without touching code.
+- Two editions from one codebase; adding a third later should be a content-only change.
+
+**Non-goals (v1)**
+- No backend, accounts or multi-user sync.
+- No automatic integration with Jira / Jenkins / Git (planned for later phases).
+- No Electron packaging until the web version proves useful.
+
+## 2. Architecture
+
+```
+          ┌──────────────────────────────┐
+          │         @abu/core            │
+          │  types · loader/validation   │
+          │  search · workflow engine    │
+          │  progress store · React UI   │
+          └──────────────┬───────────────┘
+                         │ imported by
+          ┌──────────────┴───────────────┐
+   ┌──────▼───────┐               ┌──────▼───────┐
+   │  abu-tech    │               │   abu-ops    │
+   │ Vite + React │               │ Vite + React │
+   │ content/*.yaml│              │ content/*.yaml│
+   └──────────────┘               └──────────────┘
+```
+
+- **Monorepo (pnpm workspaces).** `core` is consumed as TypeScript source by each edition, so there is no separate build step for it.
+- **Editions are thin.** An edition contains an entry point, a title and its `content/` folder. All behavior lives in `core`.
+- **Content is validated at startup.** YAML is imported at build time by `vite-plugin-yaml`, then passed through validators in `core/loader.ts`. A malformed file fails loudly with a readable message instead of rendering a broken page.
+
+## 3. Repository Layout
+
+```
+abu/
+├── package.json
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+└── packages/
+    ├── core/
+    │   └── src/  types.ts · loader.ts · search.ts · workflow.ts
+    │             progress.ts · components/ · styles.css · index.ts
+    ├── abu-tech/
+    │   ├── content/  links.yaml · workflows/release.yaml
+    │   └── src/      main.tsx · App.tsx
+    └── abu-ops/      (same shape, different content)
+```
+
+## 4. Content Model
+
+### 4.1 Links (`links.yaml`)
+
+| Field | Required | Notes |
+|---|---|---|
+| `categories[].id`, `name` | yes | Category grouping shown on the page |
+| `links[].name`, `url` | yes | `url` must start with `http://` or `https://` |
+| `links[].id` | no | Lets workflow steps reference the link |
+| `links[].tags`, `desc` | no | Both are searchable |
+
+### 4.2 Workflow (`workflows/*.yaml`)
+
+| Field | Required | Notes |
+|---|---|---|
+| `name` | yes | Display name |
+| `steps[].id`, `title` | yes | `id` unique within the workflow |
+| `steps[].owner` | no | Role or team, e.g. QA, Tech, Ops |
+| `steps[].depends_on` | no | Step ids that must be done first |
+| `steps[].checklist` | no | Sub-items inside the step |
+| `steps[].links` | no | Link ids from `links.yaml` |
+| `steps[].optional` | no | Optional steps never block later steps |
+
+## 5. Core Modules
+
+**Loader / validation.** Checks structure, URL format, duplicate ids, unknown `depends_on` targets, and dependency cycles (DFS).
+
+**Search.** Query is split into tokens; every token must match somewhere. Score: name = 3, tags = 2, description or category = 1. Results are sorted by score, then name. Pure function, no dependencies, easy to unit test.
+
+**Workflow engine.** `computeStates(workflow, doneIds)` returns a state per step:
+- `done` — marked done by the user.
+- `ready` — all non-optional dependencies are done.
+- `locked` — at least one required dependency is not done.
+
+A locked step cannot be marked done. Un-marking a step does not cascade; later steps simply become locked again.
+
+**Progress store.** `useProgress(key)` keeps done steps and ticked checklist items in `localStorage`, wrapped in try/catch so a blocked or full storage degrades to in-memory state. A Reset button clears one workflow's progress.
+
+## 6. UI
+
+- Two tabs: **Links** (search box and categorized list) and **Release** (workflow checklist).
+- Plain CSS with CSS variables; follows the OS light/dark setting.
+- Each step card shows state, owner, linked tools and its checklist.
+
+## 7. Corporate Network Considerations
+
+The target environment uses internal Nexus repositories and an SSL-inspecting proxy.
+
+- Point npm/pnpm at Nexus with a project `.npmrc` (registry URL).
+- Trust the corporate root CA for Node: set `NODE_EXTRA_CA_CERTS` to the CA bundle path.
+- Electron (later phase) downloads a binary during install and build. Mirror `electron` and `electron-builder` binaries on Nexus, or set the mirror environment variables, before attempting desktop packaging.
+- The web edition has no runtime network dependencies, so it works on an isolated internal host.
+
+## 8. Roadmap
+
+1. **Phase 1 (this repo):** links hub, release checklist, YAML content, local progress.
+2. **Phase 2:** Abu Ops content; export a checklist run as Markdown for the change ticket.
+3. **Phase 3:** Electron shell (tray icon, global hotkey, auto-start).
+4. **Phase 4:** optional backend (SQLite) for shared release history; Jira / Jenkins / Git integrations that update step status automatically.
+
+## 9. Testing Strategy
+
+- Unit tests (Vitest) for `search`, `validateLinks`, `validateWorkflow` and `computeStates` — all pure functions.
+- One smoke test per edition that loads real content through the validators, so a bad content PR fails CI.
+
+## 10. Risks
+
+| Risk | Mitigation |
+|---|---|
+| Content goes stale | Content lives in the repo; changes go through PR review; owners listed per category |
+| Progress is per-browser only | Acceptable for v1; Phase 4 adds shared state |
+| Electron build blocked by proxy | Ship web edition first; prepare Nexus mirrors before Phase 3 |
